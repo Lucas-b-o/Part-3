@@ -60,6 +60,12 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
+  if (persons.filter(person => person.name === body.name).length > 0) {
+    return response.status(400).json({ 
+      error: 'name already exist' 
+    })
+  }
+
   const person = {
     id: generateId(),
     name: body.name,
