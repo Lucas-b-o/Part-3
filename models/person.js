@@ -15,8 +15,16 @@ mongoose.connect(url)
     })
 
 const numberSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        minLength: 3,
+        require: true
+    },
+    number: {
+        type: String,
+        minLength: 6,
+        require: true
+    },
 })
 
 numberSchema.set('toJSON', {
