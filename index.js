@@ -14,29 +14,6 @@ app.use(express.static('build'))
 app.use(morgan(':method :url :status :response-time ms :body'))
 app.use(cors())
 
-let persons = [
-  {
-    "id": 1,
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": 2,
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": 3,
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": 4,
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  }
-]
-
 app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(person => {
     response.json(person)
@@ -44,17 +21,18 @@ app.get('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   Person.count().then(number => {
     response.send(`<h1>Phonebook has info for ${number} people</h1>` + new Date)
   })
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  response.json(person)
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -73,12 +51,6 @@ app.post('/api/persons', (request, response, next) => {
       error: 'name or number missing'
     })
   }
-
-  // if (persons.filter(person => person.name === body.name).length > 0) {
-  //   return response.status(400).json({ 
-  //     error: 'name must be unique' 
-  //   })
-  // }
 
   const person = new Person({
     name: body.name,
