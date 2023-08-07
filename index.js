@@ -1,33 +1,15 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
-const password = process.argv[2]
-const dbName = 'PhoneBookApp'
 const app = express()
-
-if (process.argv.length < 3) {
-  console.log('give password as argument')
-  process.exit(1)
-}
-
-const url = `mongodb+srv://fullstack:${password}@fullstackopen-test.pzwqw2x.mongodb.net/${dbName}?retryWrites=true&w=majority`
-
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
-
-const numberSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
-
-const Person = mongoose.model('Person', numberSchema)
+const Person = require('./models/person')
 
 app.use(express.json())
 
 app.use(express.static('build'))
 
-morgan.token('body',  (request, response) => {
+morgan.token('body', (request, response) => {
   return JSON.stringify(request.body)
 })
 
@@ -89,24 +71,30 @@ app.post('/api/persons', (request, response) => {
   const body = request.body
 
   if (!body.name || !body.number) {
-    return response.status(400).json({ 
-      error: 'name or number missing' 
+    return response.status(400).json({
+      error: 'name or number missing'
     })
   }
 
-  if (persons.filter(person => person.name === body.name).length > 0) {
-    return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-  }
+  // if (persons.filter(person => person.name === body.name).length > 0) {
+  //   return response.status(400).json({ 
+  //     error: 'name must be unique' 
+  //   })
+  // }
 
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number,
-  }
+  })
 
-  persons = persons.concat(person)
+  person.save()
+    .then(result => {
+      console.log(`added ${newName} number ${newNumber} to phonebook`)
+      response.json(savedNote)
+    })
+    .catch(error => {
+      console.log('Error',error)
+    })
 
   response.json(person)
 })
@@ -133,7 +121,7 @@ app.post('/api/persons', (request, response) => {
 //   response.json(personEdit)
 // })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} http://localhost:${PORT}`)
 })
