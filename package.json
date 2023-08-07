@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rmdir /s /q build && cd ..\\..\\part2\\ && npm run build && xcopy /S /E /I build ..\\part3\\Part-3\\build && cd ..\\part3\\Part-3\\",
     "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",    
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs"
   },
   "author": "Lucas Borba de Oliveira",
@@ -16,6 +16,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "mongoose": "^7.4.2",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
