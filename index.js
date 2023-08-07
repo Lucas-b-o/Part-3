@@ -5,16 +5,13 @@ const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
 
-app.use(express.json())
-
-app.use(express.static('build'))
-
 morgan.token('body', (request, response) => {
   return JSON.stringify(request.body)
 })
 
+app.use(express.json())
+app.use(express.static('build'))
 app.use(morgan(':method :url :status :response-time ms :body'))
-
 app.use(cors())
 
 let persons = [
@@ -57,15 +54,12 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
-  response.status(204).end()
+  Person.findByIdAndDelete(request.params.id)
+  .then(result => {
+    response.status(204).end()
+  })
+  .catch(error => console.log(error))
 })
-
-const generateId = () => {
-  const Id = Math.random() * (10000000 - 1) + 1;
-  return Id
-}
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
