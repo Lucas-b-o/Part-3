@@ -10,8 +10,7 @@ const newName = process.argv[3]
 const newNumber = process.argv[4]
 const dbName = 'PhoneBookApp'
 
-const url =
-    `mongodb+srv://fullstack:${password}@fullstackopen-test.pzwqw2x.mongodb.net/${dbName}?retryWrites=true&w=majority`
+const url = `mongodb+srv://fullstack:${password}@fullstackopen-test.pzwqw2x.mongodb.net/${dbName}?retryWrites=true&w=majority`
 
 mongoose.set('strictQuery', false)
 mongoose.connect(url)

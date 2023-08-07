@@ -1,7 +1,27 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+const password = process.argv[2]
+const dbName = 'PhoneBookApp'
 const app = express()
+
+if (process.argv.length < 3) {
+  console.log('give password as argument')
+  process.exit(1)
+}
+
+const url = `mongodb+srv://fullstack:${password}@fullstackopen-test.pzwqw2x.mongodb.net/${dbName}?retryWrites=true&w=majority`
+
+mongoose.set('strictQuery',false)
+mongoose.connect(url)
+
+const numberSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+const Person = mongoose.model('Person', numberSchema)
 
 app.use(express.json())
 
@@ -39,7 +59,9 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(person => {
+    response.json(person)
+  })
 })
 
 app.get('/info', (request, response) => {
