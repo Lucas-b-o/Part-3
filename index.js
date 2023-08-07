@@ -45,7 +45,10 @@ app.get('/api/persons', (request, response, next) => {
 })
 
 app.get('/info', (request, response) => {
-  response.send(`<h1>Phonebook has info for ${persons.length} people</h1>` + new Date)
+  Person.count().then(number => {
+    response.send(`<h1>Phonebook has info for ${number} people</h1>` + new Date)
+  })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -92,27 +95,26 @@ app.post('/api/persons', (request, response, next) => {
   response.json(person)
 })
 
-// app.put('/api/persons/:id', (request, response) => {
-//   const body = request.body
-//   const id = Number(request.params.id)
+app.put('/api/persons/:id', (request, response) => {
+  const body = request.body
 
-//   if (!body.name || !body.number) {
-//     return response.status(400).json({ 
-//       error: 'name or number missing' 
-//     })
-//   }
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number missing'
+    })
+  }
 
-//   const index = persons.findIndex(person => person.id === id);
+  const newPerson = {
+    name: body.name,
+    number: body.number,
+  }
 
-//   const personEdit = {
-//     ...persons[index],
-//     number: body.number,
-//   }
-
-//   persons[index] = personEdit
-
-//   response.json(personEdit)
-// })
+  Person.findByIdAndUpdate(request.params.id, newPerson, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
