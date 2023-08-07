@@ -37,10 +37,11 @@ let persons = [
   }
 ]
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(person => {
     response.json(person)
   })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -53,15 +54,15 @@ app.get('/api/persons/:id', (request, response) => {
   response.json(person)
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-  .then(result => {
-    response.status(204).end()
-  })
-  .catch(error => console.log(error))
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name || !body.number) {
@@ -86,9 +87,7 @@ app.post('/api/persons', (request, response) => {
       console.log(`added ${newName} number ${newNumber} to phonebook`)
       response.json(savedNote)
     })
-    .catch(error => {
-      console.log('Error',error)
-    })
+    .catch(error => next(error))
 
   response.json(person)
 })
@@ -114,6 +113,24 @@ app.post('/api/persons', (request, response) => {
 
 //   response.json(personEdit)
 // })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
